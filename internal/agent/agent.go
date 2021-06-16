@@ -88,11 +88,16 @@ func (a *Agent) setupLogger() error {
 }
 
 func (a *Agent) setupMux() error {
-	rpcAddr := fmt.Sprintf(":%d", a.Config.RPCPort)
+	rpcAddr, err := a.Config.RPCAddr()
+	if err != nil {
+		return err
+	}
+
 	ln, err := net.Listen("tcp", rpcAddr)
 	if err != nil {
 		return err
 	}
+
 	a.mux = cmux.New(ln)
 	return nil
 }
@@ -127,8 +132,9 @@ func (a *Agent) setupServer() error {
 		a.Config.ACLPolicyFile,
 	)
 	serverConfig := &server.Config{
-		CommitLog:  a.log,
-		Authorizer: authorizer,
+		CommitLog:   a.log,
+		Authorizer:  authorizer,
+		GetServerer: a.log,
 	}
 	var opts []grpc.ServerOption
 	if a.Config.ServerTLSConfig != nil {
@@ -136,7 +142,7 @@ func (a *Agent) setupServer() error {
 		opts = append(opts, grpc.Creds(creds))
 	}
 	var err error
-	a.server, err = server.NewGrpcServer(serverConfig, opts...)
+	a.server, err = server.NewGRPCServer(serverConfig, opts...)
 	if err != nil {
 		return err
 	}

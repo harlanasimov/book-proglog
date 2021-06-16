@@ -131,7 +131,7 @@ func setupTest(t *testing.T, fn func(config *Config)) (rootClient, nobodyClient 
 		fn(cfg)
 	}
 
-	server, err := NewGrpcServer(cfg, grpc.Creds(serverCreds))
+	server, err := NewGRPCServer(cfg, grpc.Creds(serverCreds))
 	require.NoError(t, err)
 	go func() {
 		server.Serve(l)
