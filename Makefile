@@ -47,3 +47,11 @@ $(CONFIG_PATH)/policy.csv:
 .PHONY: test
 test: $(CONFIG_PATH)/policy.csv $(CONFIG_PATH)/model.conf
 	go test -race ./...
+
+.PHONY: build
+build:
+	CGO_ENABLED=0 go build -o ./bin/proglog ./cmd/proglog
+
+TAG ?= 0.0.1
+build-docker:
+	docker build -t wenyuangui/proglog:$(TAG) .
